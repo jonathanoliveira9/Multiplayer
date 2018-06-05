@@ -29,6 +29,13 @@ bool UMainMenu::Initialize()
 	if (!ensure(QuitButton != nullptr))return false;
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitPressed);
 
+	if (!ensure(VideoButton != nullptr))return false;
+	VideoButton->OnClicked.AddDynamic(this, &UMainMenu::OpenVideoMenu);
+
+	if (!ensure(VideoBackButton != nullptr))return false;
+	VideoBackButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMenuVideo);
+
+
 	return true;
 
 }
@@ -64,6 +71,16 @@ void UMainMenu::OpenJoinMenu()
 	
 	}
 
+void UMainMenu::OpenVideoMenu()
+{
+	if (!ensure(MenuSwitcher != nullptr)) return;
+	if (!ensure(VideoMenu != nullptr)) return;
+
+	MenuSwitcher->SetActiveWidget(VideoMenu);
+
+}
+
+
 void UMainMenu::OpenMainMenu()
  {
 	if (!ensure(MenuSwitcher != nullptr)) return;
@@ -71,6 +88,13 @@ void UMainMenu::OpenMainMenu()
 	
 		MenuSwitcher->SetActiveWidget(MainMenu);
 	}
+
+void UMainMenu::OpenMenuVideo() {
+	if (!ensure(MenuSwitcher != nullptr)) return;
+	if (!ensure(VideoMenu != nullptr)) return;
+
+	MenuSwitcher->SetActiveWidget(MainMenu);
+}
 
 void UMainMenu::QuitPressed() 
 {

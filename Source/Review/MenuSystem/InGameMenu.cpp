@@ -2,6 +2,9 @@
 
 #include "InGameMenu.h"
 #include "Components/Button.h"
+#include "MainMenu.h"
+#include "Components/WidgetSwitcher.h"
+
 
 bool UInGameMenu::Initialize()
 {
@@ -15,7 +18,14 @@ bool UInGameMenu::Initialize()
 	if (!ensure(QuitButton != nullptr))return false;
 	QuitButton->OnClicked.AddDynamic(this, &UInGameMenu::QuitPressed);
 
-	return true;
+	if (!ensure(OptionPauseButton != nullptr))return false;
+    OptionPauseButton->OnClicked.AddDynamic(this, &UInGameMenu::OpenVideo);
+	
+
+	if (!ensure(VideoBackButton != nullptr))return false;
+	VideoBackButton->OnClicked.AddDynamic(this, &UInGameMenu::BackToMenuPause);
+
+		return true;
 }
 void UInGameMenu::CancelPressed()
 {
@@ -30,4 +40,21 @@ void UInGameMenu::QuitPressed()
 		MenuInterface->LoadMainMenu();
 		
 	}
+}
+
+void UInGameMenu::OpenVideo()
+{
+	if (!ensure(GameSwitcher != nullptr)) return;
+	if (!ensure(OptionPauseButton != nullptr)) return;
+
+	GameSwitcher->SetActiveWidget(VideoMenu);
+
+}
+
+void UInGameMenu::BackToMenuPause() {
+	if (!ensure(GameSwitcher != nullptr)) return;
+	if (!ensure(VideoBackButton != nullptr)) return;
+	GameSwitcher->SetActiveWidget(InGameMenu);
+ 
+
 }

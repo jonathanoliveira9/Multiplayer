@@ -25,6 +25,12 @@ private:
 		 class UButton*HostButton;
 
 	UPROPERTY(meta = (BindWidget))
+		class UButton*VideoButton;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton*VideoBackButton;
+
+	UPROPERTY(meta = (BindWidget))
 		class UButton*JoinButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -41,6 +47,9 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 		 class UWidget*JoinMenu;
+
+	UPROPERTY(meta = (BindWidget))
+		class UWidget*VideoMenu;
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidget*MainMenu; 
@@ -64,6 +73,10 @@ private:
 
 	UFUNCTION()
 	void QuitPressed();
+	
+	UFUNCTION()
+		void OpenVideoMenu();
 
-
-};
+	UFUNCTION()
+		void OpenMenuVideo();
+	};

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameEngine.h"
+#include "OnlineSubsystem.h"
+
 #include "MenuSystem/MenuInterface.h"
 #include "ReviewGameInstance.generated.h"
 
@@ -19,7 +21,7 @@ public:
 	virtual void Init();
 	
 	UFUNCTION(BlueprintCallable)
-		void LoadMenu();
+		void LoadMenuWidget();
 
 	UFUNCTION(BlueprintCallable)
 		void InGameLoadMenu();
@@ -38,6 +40,8 @@ private:
 	TSubclassOf<class  UUserWidget> InGameMenuClass;
 
 	class UMainMenu* Menu;   
+	IOnlineSessionPtr SessionInterface;
 
 
+	void OnCreateSessionComplete(FName SessionName, bool Success);
 };

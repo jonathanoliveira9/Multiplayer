@@ -29,7 +29,10 @@ UReviewGameInstance::UReviewGameInstance(const FObjectInitializer & FObjectIniti
 	UE_LOG(LogTemp, Warning, TEXT("GameInstance Constructor"));
 
 }
-
+void UReviewGameInstance::OnFindSessionComplete(bool Success)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Finished Find Session "));
+}
 
 void UReviewGameInstance:: Init() 
 {
@@ -44,6 +47,17 @@ SessionInterface =	Subsystem->GetSessionInterface();
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnCreateSessionComplete);
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnDestroySessionComplete);
 
+		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnFindSessionComplete);
+
+			SessionSearch = MakeShareable(new FOnlineSessionSearch());
+
+		if (SessionSearch.IsValid()) {
+
+			UE_LOG(LogTemp, Warning, TEXT("Starting FInd Session "));
+
+			SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+
+		}
 	}
 	}
 	else {

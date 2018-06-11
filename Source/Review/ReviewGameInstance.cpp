@@ -29,10 +29,6 @@ UReviewGameInstance::UReviewGameInstance(const FObjectInitializer & FObjectIniti
 	UE_LOG(LogTemp, Warning, TEXT("GameInstance Constructor"));
 
 }
-void UReviewGameInstance::OnFindSessionComplete(bool Success)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Finished Find Session "));
-}
 
 void UReviewGameInstance:: Init() 
 {
@@ -43,20 +39,17 @@ void UReviewGameInstance:: Init()
 		UE_LOG(LogTemp, Warning, TEXT("Found subsystem %s"), *Subsystem->GetSubsystemName().ToString());
 SessionInterface =	Subsystem->GetSessionInterface();
 	if (SessionInterface.IsValid()) {
-		
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnCreateSessionComplete);
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnDestroySessionComplete);
-
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnFindSessionComplete);
 
-			SessionSearch = MakeShareable(new FOnlineSessionSearch());
+		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 
-		if (SessionSearch.IsValid()) {
-
-			UE_LOG(LogTemp, Warning, TEXT("Starting FInd Session "));
-
+		if (SessionSearch.IsValid())
+		{
+		//	SessionSearch->bIsLanQuery = true;
+				UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 			SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-
 		}
 	}
 	}
@@ -126,6 +119,10 @@ void UReviewGameInstance::CreateSession()
 {
 	if (SessionInterface.IsValid()) {
 		FOnlineSessionSettings SessionSettings;
+		SessionSettings.bIsLANMatch = true;
+		SessionSettings.NumPublicConnections = 2;
+		SessionSettings.bShouldAdvertise = true;
+		     
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 
@@ -157,6 +154,19 @@ void UReviewGameInstance::OnCreateSessionComplete(FName SessionName, bool Succes
 	if (!ensure(World != nullptr)) return;
 	World->ServerTravel("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
 
+}
+void UReviewGameInstance::OnFindSessionComplete(bool Success)
+{
+	if (Success && SessionSearch.IsValid()){
+
+		UE_LOG(LogTemp, Warning, TEXT("Finished Find Session"));
+		for(const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults){
+
+			UE_LOG(LogTemp, Warning, TEXT("Found Session names: %s"),*SearchResult.GetSessionIdStr());
+		}
+		}
+		
+	 
 }
 
 void UReviewGameInstance::Join(const FString& Address) 

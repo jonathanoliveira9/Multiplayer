@@ -33,7 +33,7 @@ public:
 		void Join(const FString& Address)override;
 
 	virtual void LoadMainMenu() override;
-
+	void RefreshServerList() override;
 
 private:
 	TSubclassOf<class  UUserWidget> MenuClass;

@@ -42,15 +42,15 @@ SessionInterface =	Subsystem->GetSessionInterface();
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnCreateSessionComplete);
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnFindSessionComplete);
+		
+		//SessionSearch = MakeShareable(new FOnlineSessionSearch());
 
-		SessionSearch = MakeShareable(new FOnlineSessionSearch());
-
-		if (SessionSearch.IsValid())
-		{
+		//if (SessionSearch.IsValid())
+		//{
 		//	SessionSearch->bIsLanQuery = true;
-				UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
-			SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-		}
+		//		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+		//	SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+		//}
 	}
 	}
 	else {
@@ -155,15 +155,33 @@ void UReviewGameInstance::OnCreateSessionComplete(FName SessionName, bool Succes
 	World->ServerTravel("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
 
 }
+
+void UReviewGameInstance::RefreshServerList() 
+{
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+
+	if (SessionSearch.IsValid()) 
+	{
+		//SessionSearch -> bIsLanQuery= true;
+		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
+		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+	}
+}
+
 void UReviewGameInstance::OnFindSessionComplete(bool Success)
 {
-	if (Success && SessionSearch.IsValid()){
+	if (Success && SessionSearch.IsValid() && Menu !=nullptr){
 
 		UE_LOG(LogTemp, Warning, TEXT("Finished Find Session"));
+
+		TArray<FString> ServerNames;
+
 		for(const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults){
 
 			UE_LOG(LogTemp, Warning, TEXT("Found Session names: %s"),*SearchResult.GetSessionIdStr());
+			ServerNames.Add(SearchResult.GetSessionIdStr());
 		}
+		Menu->SetServerList(ServerNames);
 		}
 		
 	 
@@ -174,18 +192,17 @@ void UReviewGameInstance::Join(const FString& Address)
 
 	if (Menu != nullptr)
 	{
-		Menu->TearDown();
-
+		Menu->SetServerList({ "Test1", "Test2" });
 	}
-
-	UEngine* Engine = GetEngine();
-	if (!ensure(Engine != nullptr)) return;
-
-	Engine->AddOnScreenDebugMessage(0, 2, FColor::Red, FString::Printf(TEXT("Joining %s"), *Address));
-
-	APlayerController * PlayerController = GetFirstLocalPlayerController();
-	if (!ensure(PlayerController != nullptr))return;
-	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+//
+//	UEngine* Engine = GetEngine();
+//	if (!ensure(Engine != nullptr)) return;
+//
+//	Engine->AddOnScreenDebugMessage(0, 2, FColor::Red, FString::Printf(TEXT("Joining %s"), *Address));
+//
+//	APlayerController * PlayerController = GetFirstLocalPlayerController();
+//	if (!ensure(PlayerController != nullptr))return;
+//	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 }
 
  void UReviewGameInstance::LoadMainMenu()

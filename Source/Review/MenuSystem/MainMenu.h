@@ -14,8 +14,11 @@ UCLASS()
 class REVIEW_API UMainMenu : public UMenuWidget
 {
 	GENERATED_BODY()
+
 public:
 	UMainMenu(const FObjectInitializer & FObjectInitializer); 
+
+	void SetServerList(TArray<FString> ServerNames);
 
 protected:
 	virtual bool Initialize();

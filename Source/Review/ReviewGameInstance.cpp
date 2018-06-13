@@ -7,7 +7,7 @@
 #include "Blueprint/UserWidget.h"
 
 #include "OnlineSessionSettings.h"
-#include "OnlineSessionInterface.h"
+
 
 #include "MenuSystem/MainMenu.h" 
 #include "MenuSystem/MenuWidget.h" 
@@ -42,15 +42,8 @@ SessionInterface =	Subsystem->GetSessionInterface();
 		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnCreateSessionComplete);
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnFindSessionComplete);
-		
-		//SessionSearch = MakeShareable(new FOnlineSessionSearch());
+		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UReviewGameInstance::OnJoinSessionComplete);
 
-		//if (SessionSearch.IsValid())
-		//{
-		//	SessionSearch->bIsLanQuery = true;
-		//		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
-		//	SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-		//}
 	}
 	}
 	else {
@@ -187,22 +180,37 @@ void UReviewGameInstance::OnFindSessionComplete(bool Success)
 	 
 }
 
-void UReviewGameInstance::Join(const FString& Address) 
+void UReviewGameInstance::Join(uint32 Index) 
 {
-
+	if (!SessionInterface.IsValid()) return;
+	if (!SessionSearch.IsValid()) return;
 	if (Menu != nullptr)
 	{
-		Menu->SetServerList({ "Test1", "Test2" });
+		Menu->TearDown();
 	}
-//
-//	UEngine* Engine = GetEngine();
-//	if (!ensure(Engine != nullptr)) return;
-//
-//	Engine->AddOnScreenDebugMessage(0, 2, FColor::Red, FString::Printf(TEXT("Joining %s"), *Address));
-//
-//	APlayerController * PlayerController = GetFirstLocalPlayerController();
-//	if (!ensure(PlayerController != nullptr))return;
-//	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+
+
+
+}
+void UReviewGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+	if (!SessionInterface.IsValid()) return;
+
+	FString Address;
+	if (!SessionInterface->GetResolvedConnectString(SessionName, Address)) {
+		UE_LOG(LogTemp, Warning, TEXT("Could not get connect string"));
+		return;
+}
+
+	UEngine* Engine = GetEngine();
+	if (!ensure(Engine != nullptr)) return;
+	
+		Engine->AddOnScreenDebugMessage(0, 2, FColor::Red, FString::Printf(TEXT("Joining %s"), *Address));
+	
+		APlayerController * PlayerController = GetFirstLocalPlayerController();
+		if (!ensure(PlayerController != nullptr))return;
+		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 }
 
  void UReviewGameInstance::LoadMainMenu()

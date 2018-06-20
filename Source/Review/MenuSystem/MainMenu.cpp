@@ -75,7 +75,7 @@ void UMainMenu::SetServerList(TArray<FServerData>ServerNames)
 
 			UServerRow* Row = CreateWidget<UServerRow>(World, ServerRowClass);
 		if (!ensure(Row != nullptr)) return;
-		
+		 
 		Row->ServerName->SetText(FText::FromString(ServerData.Name));
 		Row->HostUser->SetText(FText::FromString(ServerData.HostUsername));
 		FString FractionText = FString::Printf(TEXT("%d/%d"), ServerData.MaxPlayers);

@@ -182,19 +182,17 @@ void UReviewGameInstance::OnFindSessionComplete(bool Success)
 		TArray<FServerData> ServerNames;
 		for(const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
-
 			UE_LOG(LogTemp, Warning, TEXT("Found Session names: %s"),*SearchResult.GetSessionIdStr());
-			FServerData Data; 
-				Data.Name = SearchResult.GetSessionIdStr();
-				Data.CurrentPlayers = SearchResult.Session.NumOpenPublicConnections;
-				Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
-				Data.HostUsername = SearchResult.Session.OwningUserName;
+			FServerData Data;
+			Data.Name = SearchResult.GetSessionIdStr();
+			Data.CurrentPlayers = SearchResult.Session.NumOpenPublicConnections;
+			Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
+			Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
+			Data.HostUsername = SearchResult.Session.OwningUserName;
 			ServerNames.Add(Data);
-		}
+			}
 		Menu->SetServerList(ServerNames);
 		}
-		
-	 
 }
 
 void UReviewGameInstance::Join(uint32 Index) 

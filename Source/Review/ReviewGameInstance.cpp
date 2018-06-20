@@ -112,10 +112,12 @@ void UReviewGameInstance::CreateSession()
 {
 	if (SessionInterface.IsValid()) {
 		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bIsLANMatch = true;
+		SessionSettings.bIsLANMatch = false;
+	//	SessionSettings.bIsLANMatch = true;
 		SessionSettings.NumPublicConnections = 2;
 		SessionSettings.bShouldAdvertise = true;
-		     
+		SessionSettings.bUsesPresence = true;
+		    
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 
@@ -134,7 +136,6 @@ void UReviewGameInstance::OnCreateSessionComplete(FName SessionName, bool Succes
 	if (Menu != nullptr)
 	{
 		Menu->TearDown(); 
-
 	}
 
 	UEngine*Engine = GetEngine();
@@ -153,9 +154,12 @@ void UReviewGameInstance::RefreshServerList()
 {
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
 
-	if (SessionSearch.IsValid()) 
+	if (SessionSearch.IsValid())   
 	{
 		//SessionSearch -> bIsLanQuery= true;
+
+		SessionSearch->MaxSearchResults = 100;
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 		UE_LOG(LogTemp, Warning, TEXT("Starting Find Session"));
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 	}
@@ -168,7 +172,9 @@ void UReviewGameInstance::OnFindSessionComplete(bool Success)
 		UE_LOG(LogTemp, Warning, TEXT("Finished Find Session"));
 
 		TArray<FString> ServerNames;
-
+		ServerNames.Add("Test Server 1");
+		ServerNames.Add("Test Server 2");
+		ServerNames.Add("Test Server 3");
 		for(const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults){
 
 			UE_LOG(LogTemp, Warning, TEXT("Found Session names: %s"),*SearchResult.GetSessionIdStr());
@@ -196,7 +202,7 @@ void UReviewGameInstance::Join(uint32 Index)
 void UReviewGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	if (!SessionInterface.IsValid()) return;
-
+	 
 	FString Address;
 	if (!SessionInterface->GetResolvedConnectString(SessionName, Address)) {
 		UE_LOG(LogTemp, Warning, TEXT("Could not get connect string"));

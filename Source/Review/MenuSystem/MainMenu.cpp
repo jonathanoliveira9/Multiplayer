@@ -23,7 +23,13 @@ bool UMainMenu::Initialize()
 
 
 	if (!ensure(HostButton != nullptr))return false;
-	HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+	HostButton->OnClicked.AddDynamic(this, &UMainMenu::OpenHostMenu);
+	
+	if (!ensure(CancelHostMenuButton != nullptr))return false;
+	CancelHostMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+
+	if (!ensure(ConfirmHostMenuButton != nullptr))return false;
+	ConfirmHostMenuButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer );
 	
 
 	if (!ensure(JoinButton != nullptr))return false;
@@ -50,6 +56,10 @@ bool UMainMenu::Initialize()
 
 }
 
+void UMainMenu::OpenHostMenu() {
+
+	MenuSwitcher->SetActiveWidget(HostMenu);
+}
 
 
 
@@ -57,7 +67,8 @@ void UMainMenu::HostServer() {
 	UE_LOG(LogTemp, Warning, TEXT("I'm gonna host a server!"));
 	if (MenuInterface != nullptr) 
 	{
-		MenuInterface->Host();
+		FString ServerName = ServerHostName->Text.ToString();
+		MenuInterface->Host( ServerName );
 	}
 
 }

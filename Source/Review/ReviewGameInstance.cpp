@@ -158,7 +158,8 @@ void UReviewGameInstance::OnCreateSessionComplete(FName SessionName, bool Succes
 	//Travel to World
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr)) return;
-	World->ServerTravel("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen");
+	World->ServerTravel("/Game/BP_Review/Maps/Lobby?listen");
+	
 
 }
 

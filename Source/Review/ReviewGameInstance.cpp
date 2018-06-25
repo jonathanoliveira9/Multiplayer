@@ -12,8 +12,8 @@
 #include "MenuSystem/MainMenu.h" 
 #include "MenuSystem/MenuWidget.h" 
 
-const static FName SESSION_NAME =  TEXT("My Session Game");
-const static FName SERVER_NAME_SETTINGS_KEY = TEXT("Server Name");
+const static FName SESSION_NAME =  TEXT("Game");
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
 
 UReviewGameInstance::UReviewGameInstance(const FObjectInitializer & FObjectInitializer) {
 	
@@ -117,23 +117,17 @@ void UReviewGameInstance::CreateSession()
 		FOnlineSessionSettings SessionSettings;
 		if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL") {
 			SessionSettings.bIsLANMatch = true;
-
 		}
 		else {
 			SessionSettings.bIsLANMatch = false;
-
 		}
-
 	//	SessionSettings.bIsLANMatch = true;
-		SessionSettings.NumPublicConnections = 2;
+		SessionSettings.NumPublicConnections = 5;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
 		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-		    
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
-
-
 }
 
 void UReviewGameInstance::OnCreateSessionComplete(FName SessionName, bool Success)
@@ -180,35 +174,33 @@ void UReviewGameInstance::RefreshServerList()
 
 void UReviewGameInstance::OnFindSessionComplete(bool Success)
 {
-	if (Success && SessionSearch.IsValid() && Menu !=nullptr){
-
+	if (Success && SessionSearch.IsValid() && Menu != nullptr)
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Finished Find Session"));
 
 		TArray<FServerData> ServerNames;
-		for(const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
+		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Session names: %s"),*SearchResult.GetSessionIdStr());
+			UE_LOG(LogTemp, Warning, TEXT("Found session names: %s"), *SearchResult.GetSessionIdStr());
 			FServerData Data;
-			Data.CurrentPlayers = SearchResult.Session.NumOpenPublicConnections;
 			Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
 			Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
 			Data.HostUsername = SearchResult.Session.OwningUserName;
 			FString ServerName;
-			if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName)) 
+			if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Data found in settings: %s"), *ServerName);
 				Data.Name = ServerName;
-
 			}
-			else {
-				Data.Name = "Could not fin name. ";
-				UE_LOG(LogTemp, Warning, TEXT("Didn`t found data settings "));
+			else
+			{
+				Data.Name = "Could not find name.";
 			}
 			ServerNames.Add(Data);
-			
 		}
+
 		Menu->SetServerList(ServerNames);
-		}
+	}
+
 }
 
 void UReviewGameInstance::Join(uint32 Index) 
@@ -244,6 +236,14 @@ void UReviewGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessio
 		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 }
 
+
+void UReviewGameInstance::StartSession()
+ {
+	if (SessionInterface.IsValid())
+		 {
+		SessionInterface->StartSession(SESSION_NAME);
+		}
+	}
  void UReviewGameInstance::LoadMainMenu()
  {
 	 APlayerController* PlayerController = GetFirstLocalPlayerController();
